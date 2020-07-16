@@ -7,19 +7,37 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] CharacterController characterController;
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] Transform followCamera;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] LayerMask groundMask;
 
     float turnSmoothVelocity;
     float turnSmoothTime = 0.1f;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    const float gravity = -35f;
+    Vector3 velocity;
+    float groundDistance = 0.1f;
+    float jumpHeight = 3f;
+    float terminalVelocity = -25f;
 
-    // Update is called once per frame
+    bool isGrounded;
+
     void Update()
     {
+        CheckGrounded();
+        HandleMovement();
+        HandleJumping();
+       
+    }
+
+    private void CheckGrounded() {
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        if(isGrounded) {
+            velocity.y = 0f;
+        }
+    }
+
+    private void HandleMovement() {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
@@ -35,5 +53,23 @@ public class PlayerMovement : MonoBehaviour
 
             characterController.Move(moveDirection * movementSpeed * Time.deltaTime);
         }
+    }
+
+    private void HandleJumping() {
+        if (Input.GetButtonDown("Jump") && isGrounded) {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+
+        velocity.y += gravity * Time.deltaTime;
+
+        if (velocity.y < terminalVelocity) {
+            velocity.y = terminalVelocity;
+        }
+
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    void OnDrawGizmos() {
+        Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
     }
 }
