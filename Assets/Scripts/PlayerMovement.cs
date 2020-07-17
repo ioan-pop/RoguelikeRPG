@@ -15,18 +15,22 @@ public class PlayerMovement : MonoBehaviour
 
     const float gravity = -35f;
     Vector3 velocity;
-    float groundDistance = 0.1f;
+    float groundDistance = 0.49f;
     float jumpHeight = 3f;
     float terminalVelocity = -25f;
 
     bool isGrounded;
+
+    bool validSlope;
+    Vector3 slideVelocity;
+    const float slideFriction = 0.8f;
 
     void Update()
     {
         CheckGrounded();
         HandleMovement();
         HandleJumping();
-       
+        HandleSliding();
     }
 
     private void CheckGrounded() {
@@ -67,6 +71,28 @@ public class PlayerMovement : MonoBehaviour
         }
 
         characterController.Move(velocity * Time.deltaTime);
+    }
+
+    void OnControllerColliderHit (ControllerColliderHit hit) {
+        Vector3 groundNormal = hit.normal;
+
+        Debug.DrawLine(transform.position, transform.position + Vector3.up, Color.yellow, 1f);
+        Debug.DrawLine(transform.position, transform.position + groundNormal, Color.green, 1f);
+
+        if(Vector3.Angle(Vector3.up, groundNormal) < characterController.slopeLimit) {
+            validSlope = true;
+            slideVelocity = Vector3.zero;
+        } else {
+            validSlope = false;
+            slideVelocity.x += (1f - groundNormal.y) * groundNormal.x * (1f - slideFriction);
+            slideVelocity.z += (1f - groundNormal.y) * groundNormal.z * (1f - slideFriction);
+        }
+    }
+
+    private void HandleSliding() {
+        if(!validSlope) {
+            characterController.Move(slideVelocity * Time.deltaTime);
+        }
     }
 
     void OnDrawGizmos() {
