@@ -48,17 +48,16 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        if(direction.magnitude >= 0.1f) {
-            if(vertical > 0) {
-                characterAnimator.SetBool("Running", true);
-            } else {
-                characterAnimator.SetBool("Running", false);
-            }
+        characterAnimator.SetFloat("Vertical", vertical);
+        characterAnimator.SetFloat("Horizontal", horizontal);
 
+        transform.eulerAngles = new Vector3(0f, Camera.main.transform.eulerAngles.y, 0f);
+
+        if(direction.magnitude >= 0.1f) {
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + followCamera.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            // transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
             Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
