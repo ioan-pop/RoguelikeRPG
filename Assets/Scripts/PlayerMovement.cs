@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] CharacterController characterController;
+    [SerializeField] Animator characterAnimator;
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] Transform followCamera;
     [SerializeField] Transform groundCheck;
@@ -48,6 +49,12 @@ public class PlayerMovement : MonoBehaviour
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
         if(direction.magnitude >= 0.1f) {
+            if(vertical > 0) {
+                characterAnimator.SetBool("Running", true);
+            } else {
+                characterAnimator.SetBool("Running", false);
+            }
+
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + followCamera.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
