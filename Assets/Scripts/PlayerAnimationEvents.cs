@@ -9,6 +9,10 @@ public class PlayerAnimationEvents : MonoBehaviour
     }
 
     public void FootL() {
+
+    }
+
+    public void Land() {
         
     }
 }
